@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract CryptoManagement {
+    address public cryptoHolder;
+    mapping(uint256 => uint256) public tokenValues;
+
+    constructor() {
+        cryptoHolder = msg.sender;
+    }
+
+    modifier onlyCryptoHolder() {
+        require(msg.sender == cryptoHolder, "Only the crypto holder can perform this action");
+        _;
+    }
+
+    function setTokenValue(uint256 tokenId, uint256 value) external onlyCryptoHolder {
+        require(value > 0, "Token value must be greater than zero");
+        tokenValues[tokenId] = value;
+    }
+
+    function processTokenTransaction(uint256 tokenId, uint256 offeredValue) external {
+        require(offeredValue > 0, "Invalid offered value");
+        assert(offeredValue >= 20);
+        if (offeredValue > tokenValues[tokenId]) {
+            revert("Offered value exceeds available tokens");
+        }
+        assert(tokenValues[tokenId] >= offeredValue);
+        tokenValues[tokenId] -= offeredValue;
+    }
+}
